@@ -1,0 +1,236 @@
+/* global css start */
+:root{
+  /* --themeClr0:darkcyan;
+  --themeClr1:#567097; */
+  
+  /* --themeClr0:#344660;
+  --themeClr1:#374964; */
+  --themeClr0:rgb(41, 84, 84);
+  --themeClr1:#1d4444;
+
+  --themeClr2:#db7676;
+  /* --themeClr2:#bb6363; */
+
+}
+
+.bgsuccess { background-color: #22bb33; }
+.bgerr { background-color: #bb2124; }
+
+/* #02616a */
+.payout-nav.nav-pills .nav-link.active, 
+.payout-nav.nav-pills .show>.nav-link{
+  background-color: var(--themeClr0);
+  color: white;
+  border: 1px solid;
+}
+.payout-nav.nav-pills .nav-link{
+  /* color: #6c757d; */
+  color: white;
+  background-color: var(--themeClr1);
+}
+.payout-nav.nav-pills .nav-link i{
+  font-size: 20px;
+}
+.payout-nav{
+  z-index: 9;
+  background-color: var(--themeClr1);
+  padding: 15px;
+}
+
+.payout-table tr th,.payout-table tr td{
+  white-space: nowrap;
+}
+.payout-table tr th{
+  background-color: var(--themeClr1);
+  color: white;
+}
+.payout-table tr td{
+  font-size: 14px;
+}
+.screen-title{
+  background-color: var(--themeClr2);
+  color: white;
+}
+
+/* .screen-title .dropdown-toggle::after{
+  display: none;
+} */
+
+.screen-title ul li i{
+  font-size: 18px;
+}
+.inpErr{
+  font-size: 14px;
+}
+.form_label{
+  font-size: 14px;
+}
+.hamburger-logo button{
+  font-size: 24px;
+}
+.logintitle{
+  color: #567097; 
+}
+.otp-inp{
+  width: 40px;
+  text-align: center;
+}
+
+.field-inp legend{
+  font-size: 16px;
+}
+/* .form-alert > div{
+  background-color: rgb(177 68 68);
+}
+.form-alert > div::before{
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #a70000;
+}
+.form-alert{
+  top: 5px;
+  right: 5px;
+} */
+/* global css end */
+
+/* global class css start */
+.themebg2{ background-color: var(--themeClr2) !important }
+.themeclr2{ color: var(--themeClr2) }
+.cursor-not-allow{ cursor: not-allowed; background-color: #f3f3f3 !important; }
+.underline-hover:hover { text-decoration: underline; }
+/* global class css end */
+
+/* global pagination css start */
+.pagination .page-link:hover{
+  color: var(--themeClr2);
+}
+.pagination > .active .page-link{
+  background-color: var(--themeClr2);
+  border-color: var(--themeClr2);
+  color: white;
+}
+/* global pagination css end */
+
+/* Entrypoint Start */
+.loginform{
+  width: 400px;
+}
+.loginform .nextbtn{
+  background-color: var(--themeClr2);
+}
+.entrypoint .right-side{
+  background-color: #e9f3e8;
+}
+.entrymodelink{
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.entrymodelink:hover{
+  color: var(--themeClr2)!important;
+}
+.registerform{
+  overflow: auto;
+}
+.custom_toast button{
+  margin-left: 10px;
+}
+.login-logo{
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 140px;
+}
+/* Entrypoint End */
+
+/* date input start */
+.date-input > input[type=text]{
+  cursor: pointer;
+}
+/* date input end */
+
+/* dashboard start */
+.db-box::before {
+  content: '';
+  width: 5px;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  background-color: #db7676;
+}
+.db-box i { 
+  font-size: 40px;
+}
+.db-box strong {
+  font-size: 18px;
+}
+.db-box-1 > i { color: #68b368; }
+.db-box-2 > i { color: #68b368; }
+.db-box-3 > i { color: #ffc107; }
+.db-box-4 > i { color: #ffc107; }
+
+/* .db-box-1::before { background-color: #68b368; }
+.db-box-2::before { background-color: #68b368; }
+.db-box-3::before { background-color: #ffc107; }
+.db-box-4::before { background-color: #ffc107; } */
+/* db7676 */
+.dbchart canvas{
+  /* height: 500px !important; */
+  /* width: 100% !important;
+  height: auto !important; */
+}
+.piestatus .progress{
+  height: 24px;
+  position: relative;
+}
+.piestatus .progress span{
+  font-weight: 600;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+/* dashboard end */
+
+/* wallet page */
+.wallet-card{
+  width: 300px;
+  background-color: var(--themeClr1);
+}
+.wallet-card strong{
+  font-size: 20px;
+}
+/* wallet page */
+
+@media(max-width: 576px){
+  .db-search-form > div{
+    display: block !important;
+  }
+}
+
+
+/* ----------------------------------- */
+
+
+.login-tabs a{
+  color: gray !important;
+}
+.login-tabs a.active{
+  font-weight: 600;
+}
+.login-tabs a.active::before{
+  content: '';
+  width: 80%;
+  height: 4px;
+  background-color: #db7676;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
