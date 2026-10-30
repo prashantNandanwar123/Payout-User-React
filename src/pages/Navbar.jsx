@@ -1,145 +1,423 @@
+
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
+import {
+    Menu,
+    Wallet,
+    UserCircle,
+    X,
+    ArrowLeft
+} from "lucide-react";
+
+import axiosInstance from "../api/axios";
 
 export default function Navbar({ toggleSidebar }) {
     const [profileOpen, setProfileOpen] = useState(false);
     const [profileData, setProfileData] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [showNotification, setShowNotification] = useState(false);
+    const [profileLoading, setProfileLoading] = useState(false);
+
+    const [walletBalance, setWalletBalance] = useState(null);
+    const [walletLoading, setWalletLoading] = useState(false);
 
     const location = useLocation();
+
+    // Logged-in user details
+    const user = (() => {
+        try {
+            return JSON.parse(localStorage.getItem("user") || "{}");
+        } catch {
+            return {};
+        }
+    })();
+
+    const userData = user?.respData || user;
+    const userId = userData?.userId;
+    const merchantName =
+        `${userData?.firstName || ""} ${userData?.lastName || ""}`.trim() ||
+        userData?.merchant_Name ||
+        "User";
+
 
     const pageTitles = {
         "/app/dashboard": "Dashboard",
         "/app/reports": "Reports",
-        "/app/crypto-dashboard": "Crypto Dashboard",
-        "/app/crypto-reports": "Crypto Reports",
-        "/app/api-keys": "API Keys",
-        "/app/webhooks": "Webhooks",
-        "/app/ip-Whishlist": "IP Whitelist",
-        "/app/profile": "Profile",
-        "/app/apidoc": "API Docs",
-        "/app/paymentlinks": "Payment Links"        
+        "/app/beneficiary-manage": "Beneficiary Management",
+        "/app/bulk-payout": "Bulk Payout",
+        "/app/top-up": "Top Up",
+        "/app/fund-transfer": "Fund Transfer"
     };
 
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-    const companyName = user?.company_name || "No Company";
-    const merchantName = user?.merchant_Name || "No User";
+    // --------------------------------
+    // 1. FETCH WALLET BALANCE API
+    // --------------------------------
 
-    const initials = merchantName
-        .split(" ")
-        .map(word => word.charAt(0).toUpperCase())
-        .slice(0, 2)
-        .join("");
+    const fetchWalletBalance = async () => {
+        if (!userId) return;
 
-    // Auto Hide Notification
-    useEffect(() => {
-        if (showNotification) {
-            const timer = setTimeout(() => {
-                setShowNotification(false);
-            }, 5000);
-            return () => clearTimeout(timer);
+        try {
+            setWalletLoading(true);
+
+            const response = await axiosInstance.post(
+                "/fetchWalletBalance",
+                {
+                    userId: userId
+                }
+            );
+
+            const data =
+                response?.respData ??
+                response?.data?.respData ??
+                response?.data ??
+                response;
+
+            const balance =
+                typeof data === "object"
+                    ? (
+                        data?.walletBalance ??
+                        data?.balance ??
+                        data?.walletAmount ??
+                        data?.amount ??
+                        data?.availableBalance
+                    )
+                    : data;
+
+            setWalletBalance(balance ?? null);
+
+        } catch (error) {
+            console.error("Wallet API Error:", error);
+            setWalletBalance(null);
+        } finally {
+            setWalletLoading(false);
         }
-    }, [showNotification]);
+    };
 
-    // Notification Icon Click
-    const handleNotificationClick = () => {
-        setShowNotification(true);
+    // Fetch wallet when Navbar loads
+    useEffect(() => {
+        fetchWalletBalance();
+    }, [userId]);
+
+
+    // --------------------------------
+    // 2. FETCH PROFILE API
+    // --------------------------------
+
+    const fetchProfile = async () => {
+        if (!userId) {
+            console.error("User ID not found:", user);
+            return;
+        }
+
+        try {
+            setProfileLoading(true);
+
+            const response = await axiosInstance.get(
+                `/auth/profile/${userId}`
+            );
+
+            console.log("PROFILE API FULL RESPONSE:", response);
+            console.log("LOGIN USER DATA:", userData);
+            console.log("PROFILE USER ID:", userId);
+
+            const data =
+                response?.respData ??
+                response?.data?.respData ??
+                response?.data ??
+                response;
+
+            console.log("PROFILE API DATA:", data);
+
+            if (data && typeof data === "object") {
+                setProfileData(data);
+            } else {
+                setProfileData(null);
+            }
+
+        } catch (error) {
+            console.error("Profile API Error:", error.response?.data || error);
+            setProfileData(null);
+        } finally {
+            setProfileLoading(false);
+        }
     };
-    // Close Notification
-    const handleNotification = () => {
-        setShowNotification(false);
+
+
+    // --------------------------------
+    // 3. PROFILE BUTTON CLICK
+    // --------------------------------
+
+    const handleProfileClick = () => {
+        setProfileOpen(true);
+        fetchProfile();
     };
+
+
+    // --------------------------------
+    // 4. PROFILE FIELD VALUES
+    // --------------------------------
+
+    const getValue = (...values) => {
+        const value = values.find(
+            item => item !== undefined && item !== null && item !== ""
+        );
+        return value ?? "-";
+    };
+
+
+    const profileFields = [
+        {
+            label: "User Id",
+            value: getValue(profileData?.userId, userData?.userId)
+        },
+        {
+            label: "First Name",
+            value: getValue(profileData?.firstName, userData?.firstName)
+        },
+        {
+            label: "Last Name",
+            value: getValue(profileData?.lastName, userData?.lastName)
+        },
+        {
+            label: "Gender",
+            value: getValue(profileData?.gender)
+        },
+        {
+            label: "Email Id",
+            value: getValue(profileData?.emailId)
+        },
+        {
+            label: "Address",
+            value: getValue(profileData?.address)
+        },
+        {
+            label: "City",
+            value: getValue(profileData?.city)
+        },
+        {
+            label: "State",
+            value: getValue(profileData?.state)
+        },
+        {
+            label: "Pin Code",
+            value: getValue(profileData?.pincode)
+        },
+        {
+            label: "Company Name",
+            value: getValue(profileData?.companyName)
+        },
+        {
+            label: "Company Address",
+            value: getValue(profileData?.companyAddress)
+        },
+        {
+            label: "A/C No.",
+            value: getValue(profileData?.merchantBankAccountNumber)
+        },
+        {
+            label: "Bank Name",
+            value: getValue(profileData?.merchantBankName)
+        },
+        {
+            label: "IFSC",
+            value: getValue(profileData?.merchantBankIfsc)
+        },
+        {
+            label: "Client Id",
+            value: getValue(profileData?.clientId)
+        },
+        {
+            label: "Client Secret",
+            value: getValue(profileData?.clientSecret)
+        },
+        {
+            label: "A/C Status",
+            value: getValue(profileData?.accountStatus)
+        },
+        {
+            label: "Creation Date",
+            value: getValue(profileData?.createdAt)
+        }
+    ];
+
+
+    const formattedBalance =
+        walletBalance !== null && walletBalance !== ""
+            ? `₹ ${Number(walletBalance).toLocaleString("en-IN")}`
+            : "₹ --";
+
 
     return (
         <>
             {/* NAVBAR */}
             <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm px-4 sm:px-6 xl:px-3 h-16 xl:h-14 flex items-center justify-between">
-                {/* Left Section */}
-                <div className="flex items-center gap-2 sm:gap-4 xl:gap-2 min-w-0">                   
+
+                {/* LEFT SECTION */}
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+
                     <button
                         onClick={toggleSidebar}
-                        className="p-2 xl:p-1.5 rounded-lg hover:bg-gray-100 transition shrink-0"
+                        className="p-2 rounded-lg hover:bg-gray-100 transition shrink-0"
                     >
-                        <Menu size={22} className="text-gray-700 xl:w-5 xl:h-5" />
+                        <Menu size={22} className="text-gray-700" />
                     </button>
 
-                    {/* Page Title */}
-                    <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-xl font-semibold text-gray-900 truncate">
+                    <h1 className="text-lg sm:text-xl md:text-2xl xl:text-xl font-semibold text-gray-900 truncate">
                         {pageTitles[location.pathname] || "Dashboard"}
                     </h1>
+
                 </div>
 
-                {/* Right Section */}
-                <div className="flex items-center gap-2 sm:gap-5 xl:gap-3 shrink-0">
-                    {/* Notification */}
-                    <div className="relative">
-                        {/* Notification Button */}
-                        <button
-                            onClick={handleNotificationClick}
-                            className="relative p-2 xl:p-1.5 rounded-full hover:bg-gray-100 transition"
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="w-6 h-6 xl:w-5 xl:h-5 text-gray-600"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0a3 3 0 11-6 0h6z"
-                                />
-                            </svg>
 
-                            {/* Notification Dot */}
-                            <span className="absolute top-1 right-1 xl:top-0.5 xl:right-0.5 w-2 h-2 xl:w-1.5 xl:h-1.5 rounded-full bg-red-500"></span>
-                        </button>
+                {/* RIGHT SECTION */}
+                <div className="flex items-center gap-2 sm:gap-4 shrink-0">
 
-                        {/* Notification Popup */}
-                        {showNotification && (
-                            <div className="fixed top-20 xl:top-16 right-4 sm:right-5 xl:right-3 z-50 w-[calc(100vw-2rem)] max-w-sm xl:max-w-xs bg-white rounded-xl shadow-xl p-4 xl:p-3">
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 xl:text-sm">
-                                            Congratulations! 🎉
-                                        </h3>
-                                        <p className="text-sm xl:text-xs text-gray-600 mt-1">
-                                            Congratulations! You are now a member of HelloPe.
-                                        </p>
-                                    </div>
+                    {/* WALLET BALANCE */}
 
-                                    <button
-                                        onClick={() => setShowNotification(false)}
-                                        className="text-gray-400 hover:text-gray-700"
-                                    >
-                                        ✕
-                                    </button>
-                                </div>
-                            </div>
-                        )}
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
+
+                        <Wallet
+                            size={19}
+                            className="text-gray-700"
+                        />
+
+                        <span className="text-xs sm:text-sm font-semibold text-gray-800">
+                            {walletLoading ? "Loading..." : formattedBalance}
+                        </span>
+
                     </div>
 
-                    {/* Profile */}
-                    <button className="flex items-center gap-2 sm:gap-3 xl:gap-2 rounded-lg px-2 xl:px-1.5 py-1 hover:bg-gray-100 transition">
-                        <div className="w-9 h-9 sm:w-10 h-10 xl:w-8 xl:h-8 rounded-full bg-[#fec931] flex items-center justify-center text-black font-semibold text-sm sm:text-base xl:text-sm shrink-0">
-                            {initials}
-                        </div>
-                        <div className="hidden sm:flex flex-col text-left leading-tight">
-                            <span className="text-sm xl:text-xs font-semibold text-gray-900">
-                                {merchantName}
-                            </span>
-                            <span className="text-xs xl:text-[10px] text-gray-500">
-                                {companyName}
-                            </span>
-                        </div>
+
+                    {/* PROFILE BUTTON */}
+
+                    <button
+                        onClick={handleProfileClick}
+                        className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-gray-100 transition"
+                    >
+
+                        <UserCircle
+                            size={23}
+                            className="text-gray-700"
+                        />
+
+                        <span className="hidden sm:block text-sm font-semibold text-gray-800">
+                            {merchantName}
+                        </span>
+
                     </button>
+
                 </div>
+
             </header>
+
+
+            {/* -------------------------------- */}
+            {/* PROFILE DETAILS POPUP */}
+            {/* -------------------------------- */}
+
+            {profileOpen && (
+
+                <div
+                    className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-3 sm:p-5"
+                    onClick={() => setProfileOpen(false)}
+                >
+
+                    <div
+                        className="bg-white w-full max-w-[480px] rounded-md shadow-2xl p-4 sm:p-5 max-h-[90vh] overflow-y-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+
+                        {/* POPUP HEADER */}
+
+                        <div className="flex items-center justify-between mb-5">
+
+                            <h2 className="text-sm font-semibold text-gray-500">
+                                USER DETAILS
+                            </h2>
+
+                            <button
+                                onClick={() => setProfileOpen(false)}
+                                className="text-gray-500 hover:text-red-500"
+                            >
+                                <X size={20} />
+                            </button>
+
+                        </div>
+
+
+                        {/* PROFILE LOADING */}
+
+                        {profileLoading ? (
+
+                            <div className="py-16 text-center text-sm text-gray-500">
+                                Loading profile details...
+                            </div>
+
+                        ) : profileData ? (
+
+                            <>
+
+                                {/* PROFILE FIELDS */}
+
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                                    {profileFields.map((field, index) => (
+
+                                        <div
+                                            key={index}
+                                            className="border border-gray-200 min-w-0"
+                                        >
+
+                                            <div className="text-[11px] text-emerald-700 px-2 pt-1">
+                                                {field.label}
+                                            </div>
+
+                                            <div className="text-[11px] text-gray-700 px-2 pb-1.5 break-words min-h-[23px]">
+                                                {field.value}
+                                            </div>
+
+                                        </div>
+
+                                    ))}
+
+                                </div>
+
+
+                                {/* BACK BUTTON */}
+
+                                <button
+                                    onClick={() => setProfileOpen(false)}
+                                    className="w-full mt-5 bg-gray-500 hover:bg-gray-600 text-white text-xs py-2.5 rounded-md transition flex items-center justify-center gap-2"
+                                >
+                                    <ArrowLeft size={14} />
+                                    BACK
+                                </button>
+
+                            </>
+
+                        ) : (
+
+                            <div className="py-12 text-center">
+
+                                <p className="text-sm text-red-500">
+                                    Unable to fetch profile details.
+                                </p>
+
+                                <button
+                                    onClick={fetchProfile}
+                                    className="mt-3 text-sm text-blue-600 underline"
+                                >
+                                    Try Again
+                                </button>
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                </div>
+
+            )}
+
         </>
     );
 }
-

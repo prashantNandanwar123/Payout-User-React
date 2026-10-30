@@ -16,17 +16,7 @@ const TopUp = lazy(() => import("./pages/TopUp"));
 const FundTransfer = lazy(() => import("./pages/FundTransfer"));
 const BulkPayout = lazy(() => import("./pages/BulkPayout"));
 
-
-
-
-
-{/* Settings Dropdown import */ }
-import Profile from "./pages/Profile";
-import ApiKeys from "./pages/ApiKeys";
-import Webhooks from "./pages/Webhooks";
-import IpWishlist from "./pages/IpWhitelist";
 import ForgotPassword from "./pages/ForgotPassword";
-
 
 
 function ProtectedRoute({ children }) {
@@ -80,7 +70,6 @@ function App() {
           }
         >
           <Route index element={<Navigate to="dashboard" />} />
-
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="beneficiary-manage" element={<BeneficiaryManage />} />
           <Route path="top-up" element={<TopUp />} />
@@ -88,14 +77,7 @@ function App() {
           <Route path="fund-transfer" element={<FundTransfer />} />
           <Route path="reports" element={<Reports />} />          
           <Route path="apidoc" element={<ApiDocs />} />
-
-          {/* SETTINGS PAGES - ADD HERE */}
-          <Route path="profile" element={<Profile />} />
-          <Route path="webhooks" element={<Webhooks />} />
-          <Route path="api-keys" element={<ApiKeys />} />
-          <Route path="ip-Whishlist" element={<IpWishlist />} />
-        </Route>
-     
+        </Route>    
        
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
