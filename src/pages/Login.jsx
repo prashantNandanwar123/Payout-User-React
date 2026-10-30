@@ -80,7 +80,7 @@ export default function Login() {
                                 style={{ marginLeft: "-18px" }}
                             />
                             <h1 className="text-[18px] md:text-[14px] md:leading-[18px] font-medium">
-                                Manage your
+                                Manage your payoutttttttttt
                                 <br />
                                 business payments
                                 <br />
